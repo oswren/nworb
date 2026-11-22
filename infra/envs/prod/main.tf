@@ -18,9 +18,9 @@ terraform {
 }
 
 variable "profile" {
-  description = "Local AWS CLI profile (SSO). Set AWS_PROFILE to match."
+  description = "Local AWS CLI profile. Leave null in CI (OIDC credentials) and set AWS_PROFILE locally."
   type        = string
-  default     = "admin-nworb"
+  default     = null
 }
 
 provider "aws" {

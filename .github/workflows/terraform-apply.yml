@@ -1,0 +1,93 @@
+name: Terraform apply (prod stack)
+
+# Manual only. Two jobs, both in the `production` environment, so each one
+# waits for a reviewer:
+#   1. plan  - approve to start planning. The plan is printed in the log.
+#   2. apply - runs only after plan succeeds, and waits for a second approval
+#              once you've read the plan. The apply uses the saved plan file.
+on:
+  workflow_dispatch:
+
+# One apply at a time against the state. Never cancel mid-apply.
+concurrency:
+  group: terraform-prod
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: eu-west-2
+  TF_VERSION: 1.17.2
+  STACK_DIR: infra/envs/prod
+
+jobs:
+  plan:
+    name: Plan (prod stack)
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Assume apply role (OIDC, environment-scoped)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_TERRAFORM_ROLE_ARN }}
+          role-session-name: plan-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Init
+        working-directory: ${{ env.STACK_DIR }}
+        run: terraform init -input=false
+
+      - name: Plan
+        working-directory: ${{ env.STACK_DIR }}
+        run: terraform plan -input=false -no-color -out=tfplan
+
+      - name: Upload plan for the apply job
+        uses: actions/upload-artifact@v7
+        with:
+          name: tfplan-${{ github.run_id }}
+          path: ${{ env.STACK_DIR }}/tfplan
+          retention-days: 1
+          if-no-files-found: error
+
+  apply:
+    name: Apply (prod stack)
+    runs-on: ubuntu-latest
+    needs: plan
+    environment: production
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Assume apply role (OIDC, environment-scoped)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_TERRAFORM_ROLE_ARN }}
+          role-session-name: apply-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download the reviewed plan
+        uses: actions/download-artifact@v8
+        with:
+          name: tfplan-${{ github.run_id }}
+          path: ${{ env.STACK_DIR }}
+
+      - name: Init
+        working-directory: ${{ env.STACK_DIR }}
+        run: terraform init -input=false
+
+      # Applies exactly the plan that was reviewed. No re-plan, so no drift
+      # between the reviewed change and the applied one.
+      - name: Apply
+        working-directory: ${{ env.STACK_DIR }}
+        run: terraform apply -input=false -no-color tfplan
