@@ -42,6 +42,10 @@ jobs:
           role-session-name: plan-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # Hide the account ID from the rest of this job's logs (the repo is public).
+      - name: Mask account ID in logs
+        run: echo "::add-mask::$(aws sts get-caller-identity --query Account --output text)"
+
       - name: Init
         working-directory: ${{ env.STACK_DIR }}
         run: terraform init -input=false
@@ -76,6 +80,10 @@ jobs:
           role-to-assume: ${{ secrets.AWS_TERRAFORM_ROLE_ARN }}
           role-session-name: apply-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
+
+      # Hide the account ID from the rest of this job's logs (the repo is public).
+      - name: Mask account ID in logs
+        run: echo "::add-mask::$(aws sts get-caller-identity --query Account --output text)"
 
       - name: Download the reviewed plan
         uses: actions/download-artifact@v8

@@ -52,6 +52,10 @@ jobs:
           role-session-name: deploy-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # Hide the account ID from the rest of this job's logs (the repo is public).
+      - name: Mask account ID in logs
+        run: echo "::add-mask::$(aws sts get-caller-identity --query Account --output text)"
+
       # Hashed assets are immutable, so cache them for a year.
       - name: Publish assets
         run: |
