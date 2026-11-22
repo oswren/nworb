@@ -15,6 +15,27 @@ variable "github_branch" {
   default     = "main"
 }
 
+# The repository uses immutable subject claims, so the OIDC `sub` includes the
+# numeric owner and repo IDs: repo:<owner>@<owner_id>/<repo>@<repo_id>:...
+# IDs stay the same if the repo is renamed, which makes the trust stricter.
+variable "github_owner_id" {
+  description = "Numeric GitHub owner (user or org) ID, used in the immutable OIDC subject."
+  type        = string
+  default     = "109461720"
+}
+
+variable "github_repo_id" {
+  description = "Numeric GitHub repository ID, used in the immutable OIDC subject."
+  type        = string
+  default     = "1467957395"
+}
+
+locals {
+  github_owner = split("/", var.github_repo)[0]
+  github_name  = split("/", var.github_repo)[1]
+  github_sub   = "repo:${local.github_owner}@${var.github_owner_id}/${local.github_name}@${var.github_repo_id}:ref:refs/heads/${var.github_branch}"
+}
+
 resource "aws_iam_openid_connect_provider" "github" {
   url            = "https://token.actions.githubusercontent.com"
   client_id_list = ["sts.amazonaws.com"]
@@ -43,7 +64,7 @@ data "aws_iam_policy_document" "deploy_trust" {
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repo}:ref:refs/heads/${var.github_branch}"]
+      values   = [local.github_sub]
     }
   }
 }
