@@ -37,7 +37,8 @@ jobs:
       - name: Assume apply role (OIDC, environment-scoped)
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ vars.AWS_TERRAFORM_ROLE_ARN }}
+          # A secret, not a variable: GitHub masks secrets in logs.
+          role-to-assume: ${{ secrets.AWS_TERRAFORM_ROLE_ARN }}
           role-session-name: plan-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
 
@@ -72,7 +73,7 @@ jobs:
       - name: Assume apply role (OIDC, environment-scoped)
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ vars.AWS_TERRAFORM_ROLE_ARN }}
+          role-to-assume: ${{ secrets.AWS_TERRAFORM_ROLE_ARN }}
           role-session-name: apply-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
 

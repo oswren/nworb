@@ -67,10 +67,6 @@ output "bucket_name" {
   value = module.site.bucket_name
 }
 
-output "certificate_arn" {
-  value = module.site.certificate_arn
-}
-
 output "distribution_domain_name" {
   description = "CNAME target for nworb.cloud and www in Cloudflare (DNS only)."
   value       = module.site.distribution_domain_name
