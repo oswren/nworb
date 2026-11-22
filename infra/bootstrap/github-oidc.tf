@@ -77,6 +77,50 @@ resource "aws_iam_role_policy" "deploy_state" {
   policy = data.aws_iam_policy_document.deploy_state.json
 }
 
+# Site publishing: sync the built app to the site bucket and invalidate the
+# distribution. Scoped to those two resources only. Identifiers, not secrets.
+variable "site_bucket_name" {
+  description = "Bucket the built personal site is published into."
+  type        = string
+  default     = "nworb-personal-site-prod"
+}
+
+variable "site_distribution_id" {
+  description = "CloudFront distribution serving the personal site."
+  type        = string
+  default     = "E1C7GZ50C64M02"
+}
+
+data "aws_caller_identity" "current" {}
+
+data "aws_iam_policy_document" "deploy_site" {
+  statement {
+    sid       = "ListSiteBucket"
+    actions   = ["s3:ListBucket"]
+    resources = ["arn:aws:s3:::${var.site_bucket_name}"]
+  }
+
+  statement {
+    sid       = "PublishSiteObjects"
+    actions   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
+    resources = ["arn:aws:s3:::${var.site_bucket_name}/*"]
+  }
+
+  statement {
+    sid     = "InvalidateSiteCache"
+    actions = ["cloudfront:CreateInvalidation"]
+    resources = [
+      "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${var.site_distribution_id}",
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "deploy_site" {
+  name   = "site-publish"
+  role   = aws_iam_role.deploy.id
+  policy = data.aws_iam_policy_document.deploy_site.json
+}
+
 output "deploy_role_arn" {
   description = "Role ARN for the GitHub Actions workflow (aws-actions/configure-aws-credentials)."
   value       = aws_iam_role.deploy.arn
