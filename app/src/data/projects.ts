@@ -11,7 +11,7 @@ export type Project = {
 export const projects: Project[] = [
   {
     name: 'nworb',
-    summary: 'This site. A React app served from S3 and CloudFront, with infrastructure in Terraform.',
+    summary: 'This site. React on S3 and CloudFront, with the infrastructure in Terraform.',
     status: 'in-progress',
     repo: 'https://github.com/oswren/nworb',
     tags: ['react', 'terraform', 'aws'],
