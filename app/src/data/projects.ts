@@ -16,4 +16,12 @@ export const projects: Project[] = [
     repo: 'https://github.com/oswren/nworb',
     tags: ['react', 'terraform', 'aws'],
   },
+  {
+    name: 'mm-rend',
+    summary:
+      'Browser extension that renders Mermaid diagrams from fenced code blocks on sites you allow. Runs locally, with no network requests.',
+    status: 'live',
+    repo: 'https://github.com/oswren/mm-rend',
+    tags: ['browser extension', 'mermaid', 'azure devops'],
+  },
 ]

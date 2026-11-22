@@ -1,3 +1,4 @@
+import { ArrowUpRight } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { projects } from '@/data/projects'
 
@@ -32,6 +33,30 @@ export default function Projects() {
                 </span>
               ))}
             </div>
+            {(project.repo || project.url) && (
+              <div className="mt-5 flex flex-wrap gap-4 text-sm">
+                {project.repo && (
+                  <a
+                    href={project.repo}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-muted-foreground transition hover:text-foreground"
+                  >
+                    GitHub <ArrowUpRight className="size-3.5" />
+                  </a>
+                )}
+                {project.url && (
+                  <a
+                    href={project.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-muted-foreground transition hover:text-foreground"
+                  >
+                    Visit <ArrowUpRight className="size-3.5" />
+                  </a>
+                )}
+              </div>
+            )}
           </article>
         ))}
       </div>
