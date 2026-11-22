@@ -1,8 +1,15 @@
-import { NavLink, Outlet } from 'react-router'
+import { useEffect } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router'
 import AmbientBackground from '@/components/ambient-background'
 import ContactLink from '@/components/contact-link'
 
 const year = new Date().getFullYear()
+
+const titles: Record<string, string> = {
+  '/': 'nworb',
+  '/projects': 'Projects · nworb',
+  '/about': 'About · nworb',
+}
 
 const links = [
   { to: '/', label: 'Home', end: true },
@@ -11,9 +18,22 @@ const links = [
 ]
 
 export default function App() {
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    document.title = titles[pathname] ?? 'Page not found · nworb'
+  }, [pathname])
+
   return (
     <div className="relative flex min-h-screen flex-col text-foreground">
       <AmbientBackground />
+
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:ring-2 focus:ring-ring"
+      >
+        Skip to content
+      </a>
 
       <header className="sticky top-4 z-10 mx-auto mt-4 w-[min(92%,56rem)]">
         <nav className="glass flex items-center justify-between rounded-full px-5 py-3">
@@ -40,7 +60,7 @@ export default function App() {
         </nav>
       </header>
 
-      <main className="mx-auto w-[min(92%,56rem)] flex-1 py-16 sm:py-24">
+      <main id="main" tabIndex={-1} className="mx-auto w-[min(92%,56rem)] flex-1 py-16 outline-none sm:py-24">
         <Outlet />
       </main>
 

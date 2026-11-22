@@ -177,6 +177,13 @@ body {
   }
 }
 
+/* Keyboard focus is always visible; mouse users don't see it. */
+:focus-visible {
+  outline: 2px solid var(--accent-b);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
 /* Respect users who ask for less motion. */
 @media (prefers-reduced-motion: reduce) {
   .ambient__blob,
