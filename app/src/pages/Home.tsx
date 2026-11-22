@@ -8,14 +8,14 @@ export default function Home() {
     <section className="space-y-10">
       <div className="space-y-6">
         <p className="rise inline-flex rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
-          Sandbox · tools, infrastructure and experiments
+          Personal sandbox
         </p>
         <h1 className="rise rise--delay-1 text-5xl font-semibold tracking-tight sm:text-7xl">
-          Building things, <span className="gradient-text">in the open.</span>
+          Tools and <span className="gradient-text">experiments.</span>
         </h1>
         <p className="rise rise--delay-2 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-          Small tools, cloud experiments and the odd side project. Everything here runs on AWS,
-          provisioned with Terraform and shipped from React.
+          Small tools and side projects. The site is built with React, hosted on AWS and
+          set up with Terraform.
         </p>
         <div className="rise rise--delay-2 flex flex-wrap gap-3">
           <Button asChild size="lg" className="rounded-full">
